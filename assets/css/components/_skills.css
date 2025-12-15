@@ -1,0 +1,35 @@
+/* Skills Section Styles */
+.skills__container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    max-width: 800px;
+    margin-inline: auto;
+}
+
+.skill-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    background-color: var(--container-bg-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    width: 120px;
+    transition: var(--transition);
+}
+
+.skill-item:hover {
+    transform: translateY(-5px);
+    color: var(--primary-color);
+}
+
+.skill-item i {
+    font-size: 3rem;
+}
+
+.skill-item span {
+    font-weight: 600;
+}

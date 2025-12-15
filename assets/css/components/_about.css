@@ -1,0 +1,120 @@
+/* About Section Styles */
+.about__container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3rem;
+    align-items: flex-start;
+}
+
+.about__text p {
+    margin-bottom: 1.5rem;
+}
+
+.about__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+}
+
+.about__tags li {
+    background-color: var(--container-bg-color);
+    color: var(--primary-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 2rem;
+    font-size: var(--small-font-size);
+    font-weight: 600;
+    border: 1px solid var(--primary-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.timeline {
+    position: relative;
+    border-left: 2px solid var(--border-color);
+    padding: 0 0 1rem 2rem;
+}
+
+.timeline__item {
+    position: relative;
+    padding-bottom: 2rem;
+}
+
+.timeline__item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline__item::before {
+    content: '';
+    position: absolute;
+    left: -2.7rem; /* Adjusted for the new parent padding */
+    top: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: var(--container-bg-color);
+    border: 3px solid var(--primary-color);
+}
+
+.timeline__date {
+    color: var(--text-color-light);
+    font-size: var(--small-font-size);
+    margin-bottom: 0.25rem;
+}
+
+.timeline__content h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive About Section */
+@media screen and (max-width: 992px) {
+    .about__container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Styles for reconstructed 'About Me' section */
+.about__left, .about__right {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.musings {
+    margin-top: 1rem;
+}
+
+.musings__title {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.musings blockquote {
+    border-left: 4px solid var(--primary-color);
+    padding-left: 1.5rem;
+    font-style: italic;
+    color: var(--text-color-light);
+}
+
+/* === MODIFIED RULE === */
+.guestbook-idea {
+    background-color: transparent; /* This is the key change! */
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+    box-shadow: var(--box-shadow); /* Added shadow for better separation */
+}
+
+.guestbook-idea h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: var(--title-color); /* Changed to title-color for better contrast */
+}
+
+.guestbook-idea p {
+    margin-bottom: 1rem;
+    color: var(--text-color); /* Changed to text-color for better contrast */
+}

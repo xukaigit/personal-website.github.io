@@ -1,0 +1,36 @@
+.page-header {
+    padding: 4rem 0;
+    text-align: center;
+    background: var(--container-bg-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+}
+.page-header__title {
+    font-size: var(--h1-font-size);
+    margin-bottom: 1rem;
+}
+.page-header__nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+.content-section {
+    padding-top: 5rem; /* 增加顶部内边距以避免被固定导航栏遮挡 */
+}
+ .video-list {
+    list-style-type: none; /* 不显示列表标记 */
+    padding-left: 2rem;      /* 左边距 */
+}
+.video-list li {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+.video-list a {
+    font-weight: 600;
+}
+.video-list a:hover {
+    text-decoration: underline;
+}

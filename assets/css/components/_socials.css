@@ -1,0 +1,39 @@
+/* Socials Section Styles */
+.socials__container {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.social-card {
+    background-color: var(--container-bg-color);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+}
+
+.social-card:hover {
+    transform: translateY(-5px);
+    border: 2px solid var(--primary-color);
+}
+
+.social-card__icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+/* Social Icon Colors */
+.bilibili-learning { color: #00a1d6; }
+.bilibili-star { color: #fb7299; }
+.weibo { color: #e6162d; }
+
+.social-card__title {
+    font-size: 1.25rem;
+    color: var(--title-color);
+    margin-bottom: 0.5rem;
+}
+
+.social-card__description {
+    font-size: var(--small-font-size);
+    color: var(--text-color-light);
+}

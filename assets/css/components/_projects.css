@@ -1,0 +1,81 @@
+/* Projects Section Styles */
+.projects__filters {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+.filter-button {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: var(--normal-font-size);
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.filter-button:hover {
+    background-color: #f0efff;
+    color: var(--primary-color);
+}
+
+.filter-button.active {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.projects__grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.project-card {
+    background-color: var(--container-bg-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    transition: var(--transition);
+    display: flex; /* Used for hiding/showing items */
+    flex-direction: column;
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+}
+
+.project-card__img {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+}
+
+.project-card__content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Makes content fill the space */
+}
+
+.project-card__title {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.project-card__description {
+    margin-bottom: 1.5rem;
+    flex-grow: 1; /* Pushes the link to the bottom */
+}
+
+.project-card__link {
+    font-weight: 600;
+    align-self: flex-start;
+}
+
+/* Class for hiding filtered items (will be used by JS) */
+.project-hidden {
+    display: none;
+}

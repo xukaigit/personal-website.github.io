@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light"> <!-- Set a default theme -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日成's Homepage</title>
+    
+    <!-- Meta SEO Tags -->
+    <meta name="author" content="日成">
+    <meta name="description" content="你好，我是日成。这里是我的个人主页，用于展示我的作品、笔记和个人链接。">
+    <meta name="keywords" content="日成, 个人主页, 笔记">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome (用于图标) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- 主样式表 -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    
+    <!-- 网站图标 -->
+    <link rel="icon" href="assets/images/head.jpg">
+</head>
+<body>
+
+    <!-- =========== Header / Navigation =========== -->
+    <header class="header">
+        <nav class="nav container">
+            <a href="#" class="nav__logo">日成</a>
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li class="nav__item"><a href="#hero" class="nav__link">首页</a></li>
+                    <li class="nav__item"><a href="#about" class="nav__link">关于我</a></li>
+                    <li class="nav__item"><a href="#projects" class="nav__link">作品</a></li>
+                    <li class="nav__item"><a href="#socials" class="nav__link">我的频道</a></li>
+                    <li class="nav__item"><a href="#skills" class="nav__link">技能</a></li>
+                    <li class="nav__item"><a href="#contact" class="nav__link">联系我</a></li>
+                </ul>
+            </div>
+            
+            <div class="nav__actions">
+                <!-- Theme change button -->
+                <i class="fas fa-moon theme-switcher" id="theme-button"></i>
+                
+                <!-- Toggle button for mobile -->
+                <div class="nav__toggle" id="nav-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- =========== Hero Section =========== -->
+        <section id="hero" class="hero section">
+            <div class="hero__container container grid">
+                <div class="hero__content">
+                    <!-- MODIFIED: Removed the .highlight span for a clean look -->
+                    <h1>你好, 我是 日成</h1>
+                    <p class="hero__subtitle">农学家 & 天坑牛马</p>
+                    <p class="hero__description">If I never see you again, good morning, good afternoon and good night.</p>
+                    <div class="hero__buttons">
+                        <a href="#projects" class="button">查看我的作品</a>
+                    </div>
+                </div>
+                <div class="hero__image">
+                    <img src="assets/images/head.jpg" alt="日成's head">
+                </div>
+            </div>
+        </section>
+
+        <!-- =========== About Me Section (Reconstructed) =========== -->
+        <section id="about" class="about section">
+            <h2 class="section__title">关于我</h2>
+            <div class="about__container container grid">
+                <!-- Left Column: Intro + Musings + Guestbook Idea -->
+                <div class="about__left">
+                    <p>我目前是<strong>仙林师专</strong>天坑专业的大四牛马。</p>
+                    <p>这个网站是我记录峡谷日常、分享和展示作品的地方。</p>
+                    
+                    <div class="musings">
+                        <h3 class="musings__title">前言</h3>
+                        <blockquote>
+                            “使用AI制作的饭盒，一站式恰饭。”
+                        </blockquote>
+                    </div>
+                    
+                    <div class="guestbook-idea">
+                        <h3>想和我聊聊？</h3>
+                        <p>你随时可以通过下方的联系方式找到我，期待与你的交流！</p>
+                        <a href="#contact" class="button">前往联系</a>
+                    </div>
+                </div>
+
+                <!-- Right Column: Timeline + Tags -->
+                <div class="about__right">
+                    <div class="timeline">
+                        <div class="timeline__item">
+                            <div class="timeline__date">2025-12-16</div>
+                            <div class="timeline__content">
+                                <h3>作品更新</h3>
+                                <p>化工实验一键获取。</p>
+                            </div>
+                        </div>                        
+                        <div class="timeline__item">
+                            <div class="timeline__date">2025-12-15</div>
+                            <div class="timeline__content">
+                                <h3>网站开发</h3>
+                                <p>个人一站式饭盒。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="about__tags">
+                        <li>农</li>
+                        <li>乒乓球</li>
+                        <li>吃喝玩乐</li>
+                        <li>仙林师专</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========== Projects Section =========== -->
+        <section id="projects" class="projects section">
+            <h2 class="section__title">作品 & 笔记</h2>
+            <div class="projects__container container">
+                <!-- Project Filters -->
+                <div class="projects__filters">
+                    <button class="filter-button active" data-filter="all">全部</button>
+                    <button class="filter-button" data-filter="project">个人作品</button>
+                    <button class="filter-button" data-filter="notes">学习笔记</button>
+                </div>
+
+                <div class="projects__grid grid">
+                    <!-- Project Item 1: Project -->
+                    <div class="project-card" data-category="project">
+                        <img src="assets/images/king.jpg" alt="日成-play" class="project-card__img">
+                        <div class="project-card__content">
+                            <h3 class="project-card__title">农玩家的daily</h3>
+                            <p class="project-card__description">久旱逢甘霖，机制局天神下凡</p>
+                            <a href="日成-play.html" target="_blank" class="project-card__link">查看详情 &rarr;</a>
+                        </div>
+                    </div>
+
+
+                    <!-- Project Item 2: Notes -->
+                    <div class="project-card" data-category="notes">
+                        <img src="assets/images/ku.png" alt="日成-study" class="project-card__img">
+                        <div class="project-card__content">
+                            <h3 class="project-card__title">化工实验数据</h3>
+                            <p class="project-card__description">一键跳转</p>
+                            <a href="日成-study.html" target="_blank" class="project-card__link">查看详情 &rarr;</a>
+                        </div>
+                    </div>                     
+
+                </div>
+            </div>
+        </section>
+        
+        <!-- =========== Social Links Section =========== -->
+        <section id="socials" class="socials section">
+            <h2 class="section__title">我的频道</h2>
+            <div class="socials__container container grid">
+                <a href="https://www.douyin.com/user/MS4wLjABAAAA6F1htkILuUjwsubCanJkaQ7K56157tYPTzgvXaI_bpdyNy829OnNUORU3vuGn1oq"  class="social-card">
+                    <i class="fab fa-tiktok fa-4x" style="color: #010101;"></i>   <!-- 3倍 -->
+                    <h3 class="social-card__title">抖音</h3>
+                    <p class="social-card__description">空空如也的抖音</p>
+                </a>
+                <a href="https://space.bilibili.com/1738408474" class="social-card">
+                    <i class="fab fa-bilibili social-card__icon bilibili-star"></i>
+                    <h3 class="social-card__title">Bilibili</h3>
+                    <p class="social-card__description">依旧空空如也</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- =========== Skills Section =========== -->
+        <section id="skills" class="skills section">
+            <h2 class="section__title">我的技能</h2>
+            <div class="skills__container container">
+                <div class="skill-item"><i class="fa-solid fa-flask-vial"></i><span>Chemistry</span></div>
+                <div class="skill-item"><i class="fa-solid fa-gamepad"></i><span>农</span></div>
+                <div class="skill-item"><i class="fab fa-git-alt"></i><span>Git</span></div>
+            </div>
+        </section>
+
+        <!-- =========== Contact Section =========== -->
+        <section id="contact" class="contact section">
+            <h2 class="section__title">联系我</h2>
+            <div class="contact__container container">
+                <p>如果你想与我组队，可以通过以下方式联系我。</p>
+                <div class="contact__buttons">
+                    <button class="button" id="wechat-btn"><i class="fab fa-weixin"></i> 添加微信</button>
+                    <button class="button" id="qq-btn"><i class="fab fa-qq"></i> 添加QQ</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- =========== Footer (Simplified) =========== -->
+    <footer class="footer">
+        <div class="footer__container container">
+            <p>&copy; 2025 日 成. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- =========== Modals (Pop-ups) =========== -->
+    <div class="modal" id="wechat-modal">
+        <div class="modal__content">
+            <span class="modal__close">&times;</span>
+            <h3>微信二维码</h3>
+            <img src="assets/images/wechat_qr.png" alt="WeChat QR Code">
+            <p>扫一扫添加我的微信</p>
+        </div>
+    </div>
+    
+    <div class="modal" id="qq-modal">
+        <div class="modal__content">
+            <span class="modal__close">&times;</span>
+            <h3>QQ二维码</h3>
+            <img src="assets/images/qq_qr.png" alt="QQ QR Code">
+            <p>扫一扫添加我的QQ</p>
+        </div>
+    </div>
+
+    <!-- 主脚本文件 -->
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+/* Footer Styles */
+.footer {
+    background-color: #f5f5f5; /* A slightly different shade */
+    padding: 2rem 0;
+    margin-top: 5rem;
+}
+
+.footer__container {
+    text-align: center;
+    font-size: var(--small-font-size);
+    color: var(--text-color-light);
+}
+
+.footer__container a {
+    color: var(--text-color-light);
+    text-decoration: underline;
+}
+
+.footer__container a:hover {
+    color: var(--primary-color);
+}

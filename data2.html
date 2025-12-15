@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日成's Homepage</title>
+    
+    <meta name="description" content="日成的分享">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome (用于图标) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- 主样式表 -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    
+    <!-- 网站图标 -->
+    <link rel="icon" href="assets/images/head.jpg">
+
+    <!-- 为新页面增加一些自定义样式 -->
+    <link rel="stylesheet" href="assets/css/pages/bilibili-study.css">
+</head>
+<body>
+    <!-- =========== Header / Navigation =========== -->
+    <header class="header">
+        <nav class="nav container">
+            <!-- 修改logo链接，使其能返回主页 -->
+            <a href="日成-study.html" class="nav__logo">返回</a>
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <!-- 修改导航链接，使其能正确跳转回主页的对应区域 -->
+                    <li class="nav__item"><a href="index.html#hero" class="nav__link">首页</a></li>
+                    <li class="nav__item"><a href="index.html#about" class="nav__link">关于我</a></li>
+                    <li class="nav__item"><a href="index.html#projects" class="nav__link">项目</a></li>
+                    <li class="nav__item"><a href="index.html#socials" class="nav__link">我的频道</a></li>
+                    <li class="nav__item"><a href="index.html#skills" class="nav__link">技能</a></li>
+                    <li class="nav__item"><a href="index.html#contact" class="nav__link">联系我</a></li>
+                </ul>
+            </div>
+            
+            <div class="nav__actions">
+                <i class="fas fa-moon theme-switcher" id="theme-button"></i>
+                <div class="nav__toggle" id="nav-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- =========== Page Header =========== -->
+        <section class="page-header">
+            <h1 class="page-header__title">日成_学习版</h1>
+           
+        </section>
+
+        <!-- =========== Content Sections =========== -->
+        <div class="container">
+              <!-- --- 化工实验模块 --- -->
+            <section id="fourier-analysis" class="section content-section">
+                <h2 class="section__title">实验二、流体力学</h2>
+                <p class="project-card__description">数据处理：</p>
+                <img src="assets/images/data2-数据.png" >
+                <p class="project-card__description">图像：</p>
+                <img src="assets/images/data2-图像.png" >
+
+            </section>
+        
+             
+        </div>
+
+    </main>
+
+    <!-- =========== Footer =========== -->
+    <footer class="footer">
+        <div class="footer__container container">
+            <p>&copy; 2025 日 成. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- 主脚本文件 -->
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
