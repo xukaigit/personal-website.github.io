@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>McCabe-Thiele 图绘制工具</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .chart-container {
+            position: relative;
+            height: 600px;
+            margin-top: 20px;
+        }
+        .grid-line {
+            stroke: #e5e7eb;
+            stroke-width: 1;
+        }
+        .axis-line {
+            stroke: #374151;
+            stroke-width: 2;
+        }
+        .axis-text {
+            font-size: 12px;
+            fill: #4b5563;
+            font-family: sans-serif;
+        }
+        .axis-title {
+            font-size: 14px;
+            font-weight: bold;
+            fill: #111827;
+            font-family: sans-serif;
+        }
+        .equilibrium-line {
+            stroke: #3b82f6;
+            stroke-width: 3;
+            fill: none;
+        }
+        .equilibrium-point {
+            fill: #3b82f6;
+            stroke: #3b82f6;
+            stroke-width: 2;
+            r: 4;
+        }
+        .diagonal-line {
+            stroke: #9ca3af;
+            stroke-width: 2;
+            stroke-dasharray: 2, 2;
+        }
+        .rectifying-line {
+            stroke: #16a34a;
+            stroke-width: 3;
+            fill: none;
+        }
+        .stripping-line {
+            stroke: #a855f7;
+            stroke-width: 3;
+            fill: none;
+        }
+        .q-line {
+            stroke: #f97316;
+            stroke-width: 2;
+            stroke-dasharray: 5, 5;
+            fill: none;
+        }
+        .stage-line {
+            stroke: #ef4444;
+            stroke-width: 3;
+            stroke-dasharray: 5, 5;
+        }
+        .top-point {
+            fill: #ef4444;
+            stroke: #ef4444;
+            stroke-width: 3;
+            r: 6;
+        }
+        .bottom-point {
+            fill: #a855f7;
+            stroke: #a855f7;
+            stroke-width: 3;
+            r: 6;
+        }
+        .feed-point {
+            fill: #f97316;
+            stroke: #f97316;
+            stroke-width: 3;
+            r: 6;
+        }
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 100;
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container">
+        <header class="mb-6">
+            <div class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600">
+                    <path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5h0c-1.4 0-2.5-1.1-2.5-2.5V2"></path>
+                    <path d="M8.5 2h7"></path>
+                    <path d="m14.5 16-5-5"></path>
+                </svg>
+                <h1 class="text-2xl font-bold text-gray-900">McCabe-Thiele 图绘制工具</h1>
+            </div>
+            <p class="text-gray-600">支持平衡线输入和全回流模式</p>
+        </header>
+
+        <main class="flex flex-col lg:flex-row gap-6">
+            <!-- 左侧控制面板 -->
+            <aside class="w-full lg:w-1/3 space-y-6">
+                <!-- 操作参数卡片 -->
+                <div class="bg-white rounded-lg shadow-md p-6 space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-blue-600">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        操作参数
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="xD" class="block text-sm font-medium text-gray-700 mb-1">塔顶组成 (xD)</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">x =</span>
+                                </div>
+                                <input type="number" id="xD" class="block w-full pl-10 pr-3 py-2 sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" step="0.001" min="0" max="1" value="0.672">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="xW" class="block text-sm font-medium text-gray-700 mb-1">塔釜组成 (xW)</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">x =</span>
+                                </div>
+                                <input type="number" id="xW" class="block w-full pl-10 pr-3 py-2 sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" step="0.001" min="0" max="1" value="0.312">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="xF" class="block text-sm font-medium text-gray-700 mb-1">进料组成 (xF)</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">x =</span>
+                                </div>
+                                <input type="number" id="xF" class="block w-full pl-10 pr-3 py-2 sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" step="0.001" min="0" max="1" value="0.45">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="q" class="block text-sm font-medium text-gray-700 mb-1">进料热状态参数 (q)</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">q =</span>
+                                </div>
+                                <input type="number" id="q" class="block w-full pl-10 pr-3 py-2 sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" step="0.1" min="0" max="2" value="1">
+                                <p class="mt-1 text-xs text-gray-500">q=1: 泡点进料, q=0: 露点进料</p>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="R" class="block text-sm font-medium text-gray-700 mb-1">回流比 (R)</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">R =</span>
+                                </div>
+                                <input type="number" id="R" class="block w-full pl-10 pr-3 py-2 sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" step="0.1" min="0" value="3">
+                                <div class="mt-1 flex items-center">
+                                    <input type="checkbox" id="totalReflux" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <label for="totalReflux" class="ml-2 block text-sm text-gray-700">全回流状态</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="actualStagesInput" class="block text-sm font-medium text-gray-700 mb-1">实际板数</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">N =</span>
+                                </div>
+                                <input type="number" id="actualStagesInput" class="block w-full pl-10 pr-3 py-2 sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" step="1" min="1" value="16">
+                                <p class="mt-1 text-xs text-gray-500">输入精馏塔的实际板数</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 平衡线数据输入卡片 -->
+                <div class="bg-white rounded-lg shadow-md p-6 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-blue-600">
+                                <path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5h0c-1.4 0-2.5-1.1-2.5-2.5V2"></path>
+                                <path d="M8.5 2h7"></path>
+                                <path d="m14.5 16-5-5"></path>
+                            </svg>
+                            平衡线数据
+                        </h2>
+                        <div class="flex space-x-2">
+                            <button id="loadExampleData" class="text-xs text-blue-600 hover:text-blue-800">
+                                加载示例数据
+                            </button>
+                            <button id="clearData" class="text-xs text-red-600 hover:text-red-800">
+                                清空
+                            </button>
+                            <button id="addRow" class="text-xs text-green-600 hover:text-green-800">
+                                添加行
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">液相组成 (x)</th>
+                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">气相组成 (y)</th>
+                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="equilibriumData" class="bg-white divide-y divide-gray-200">
+                                <!-- 数据行将通过JavaScript动态添加 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pt-2">
+                        <button id="calculateBtn" class="w-full flex justify-center items-center space-x-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            <span>计算并绘制</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 计算结果卡片 -->
+                <div class="bg-white rounded-lg shadow-md p-6 space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-blue-600">
+                            <path d="M18 2v7h-7"></path>
+                            <path d="M2 14v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4"></path>
+                            <path d="M22 22H2"></path>
+                            <path d="M6 10h12"></path>
+                            <path d="M10 14h4"></path>
+                        </svg>
+                        计算结果
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-700">理论板数 (包括塔釜):</span>
+                            <span id="theoreticalStages" class="text-sm font-bold text-yellow-600">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-700">精馏段理论板数:</span>
+                            <span id="rectifyingStages" class="text-sm font-bold text-green-600">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-700">提馏段理论板数:</span>
+                            <span id="strippingStages" class="text-sm font-bold text-purple-600">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-700">实际板数 :</span>
+                            <span id="actualStages" class="text-sm font-bold text-yellow-600">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-700">进料板位置:</span>
+                            <span id="feedStage" class="text-sm font-bold text-blue-600">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-700">操作状态:</span>
+                            <span id="operationStatus" class="text-sm font-bold text-gray-700">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 说明卡片 -->
+                <div class="bg-white rounded-lg shadow-md p-6 space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-blue-600">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 16v-4"></path>
+                            <path d="M12 8h.01"></path>
+                        </svg>
+                        使用说明
+                    </h2>
+                    <div class="text-sm text-gray-700 space-y-2">
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>可自定义平衡线数据，或使用示例数据</li>
+                            <li>支持全回流模式，此时不需要考虑进料参数</li>
+                            <li>部分回流时需确保进料组成在塔顶和塔釜之间</li>
+                            <li>每个完整的阶梯代表一个理论板</li>
+                        </ul>
+                        <p class="font-medium mt-2">全回流特点：</p>
+                        <p>全回流时操作线为对角线(y=x)，理论板数最少。</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 右侧图表区域 -->
+            <section class="w-full lg:w-2/3">
+                <div class="bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-blue-600">
+                                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                                <path d="m22 12-5 5"></path>
+                                <path d="m17 12 5 5"></path>
+                            </svg>
+                            McCabe-Thiele 图
+                        </h2>
+                        <div class="flex space-x-2">
+                            <button id="downloadBtn" class="flex items-center space-x-1 text-sm text-gray-600 hover:text-blue-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" x2="12" y1="15" y2="3"></line>
+                                </svg>
+                                <span>导出图表</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <svg id="mccabeThieleSVG" width="100%" height="100%" class="border border-gray-200 rounded"></svg>
+                        <div id="tooltip" class="tooltip"></div>
+                        <div id="loading" class="hidden absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center">
+                            <div>
+                                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                                <p class="mt-2 text-gray-600 text-center">计算中...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex flex-wrap gap-4 mb-2">
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-blue-600 mr-2"></div>
+                                <span class="text-sm text-gray-700">平衡线</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-green-600 mr-2"></div>
+                                <span class="text-sm text-gray-700">精馏段操作线</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-purple-600 mr-2"></div>
+                                <span class="text-sm text-gray-700">提馏段操作线</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-red-600 mr-2"></div>
+                                <span class="text-sm text-gray-700">理论板阶梯</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-500">注：图表显示了平衡线、操作线和理论板阶梯。可以通过鼠标悬停查看详细数据。</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // 全局变量
+        let equilibriumData = { x: [], y: [] };
+        
+        // 示例数据 - 乙醇-正丙醇体系的气液平衡数据
+        const exampleData = {
+            x: [0.126, 0.188, 0.210, 0.358, 0.461, 0.546, 0.600, 0.633, 0.884, 1.000],
+            y: [0.240, 0.318, 0.349, 0.550, 0.650, 0.711, 0.760, 0.799, 0.914, 1.000]
+        };
+
+        // DOM 元素
+        const xDInput = document.getElementById('xD');
+        const xWInput = document.getElementById('xW');
+        const xFInput = document.getElementById('xF');
+        const qInput = document.getElementById('q');
+        const RInput = document.getElementById('R');
+        const totalRefluxCheckbox = document.getElementById('totalReflux');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const loadingDiv = document.getElementById('loading');
+        const theoreticalStagesSpan = document.getElementById('theoreticalStages');
+        const rectifyingStagesSpan = document.getElementById('rectifyingStages');
+        const strippingStagesSpan = document.getElementById('strippingStages');
+        const actualStagesSpan = document.getElementById('actualStages');
+        const actualStagesInput = document.getElementById('actualStagesInput');
+        const feedStageSpan = document.getElementById('feedStage');
+        const operationStatusSpan = document.getElementById('operationStatus');
+        const equilibriumDataTable = document.getElementById('equilibriumData');
+        const loadExampleDataBtn = document.getElementById('loadExampleData');
+        const clearDataBtn = document.getElementById('clearData');
+        const addRowBtn = document.getElementById('addRow');
+        const svgElement = document.getElementById('mccabeThieleSVG');
+        const tooltip = document.getElementById('tooltip');
+
+        // SVG坐标系参数
+        const margin = { top: 50, right: 50, bottom: 70, left: 70 };
+        let width = 0;
+        let height = 0;
+        let xScale, yScale;
+
+        // 添加事件监听器
+        calculateBtn.addEventListener('click', calculateAndPlot);
+        downloadBtn.addEventListener('click', downloadSVG);
+        loadExampleDataBtn.addEventListener('click', loadExampleData);
+        clearDataBtn.addEventListener('click', clearData);
+        addRowBtn.addEventListener('click', addDataRow);
+        totalRefluxCheckbox.addEventListener('change', toggleTotalReflux);
+
+        // 切换全回流状态
+        function toggleTotalReflux() {
+            if (totalRefluxCheckbox.checked) {
+                RInput.disabled = true;
+                RInput.value = '∞';
+                xFInput.disabled = true;
+                qInput.disabled = true;
+            } else {
+                RInput.disabled = false;
+                RInput.value = '3';
+                xFInput.disabled = false;
+                qInput.disabled = false;
+            }
+        }
+
+        // 加载示例数据
+        function loadExampleData() {
+            console.log('加载示例数据...');
+            clearData();
+            
+            try {
+                for (let i = 0; i < exampleData.x.length; i++) {
+                    addDataRow(exampleData.x[i], exampleData.y[i]);
+                }
+                
+                equilibriumData = {
+                    x: [...exampleData.x],
+                    y: [...exampleData.y]
+                };
+                
+                console.log('示例数据加载完成');
+                
+            } catch (error) {
+                console.error('加载示例数据失败:', error);
+                alert('加载示例数据失败: ' + error.message);
+            }
+        }
+
+        // 清空数据
+        function clearData() {
+            console.log('清空数据...');
+            equilibriumDataTable.innerHTML = '';
+            equilibriumData = { x: [], y: [] };
+        }
+
+        // 添加数据行
+        function addDataRow(xValue = '', yValue = '') {
+            const row = document.createElement('tr');
+            
+            row.innerHTML = `
+                <td class="px-3 py-2 whitespace-nowrap">
+                    <input type="number" class="x-input w-full px-2 py-1 text-sm border rounded" 
+                           value="${xValue}" step="0.001" min="0" max="1" required>
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap">
+                    <input type="number" class="y-input w-full px-2 py-1 text-sm border rounded" 
+                           value="${yValue}" step="0.001" min="0" max="1" required>
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm">
+                    <button class="delete-row text-red-600 hover:text-red-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6h18"></path>
+                            <path d="m19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                            <line x1="10" x2="10" y1="11" y2="17"></line>
+                            <line x1="14" x2="14" y1="11" y2="17"></line>
+                        </svg>
+                    </button>
+                </td>
+            `;
+            
+            // 添加删除按钮事件
+            const deleteBtn = row.querySelector('.delete-row');
+            deleteBtn.addEventListener('click', function() {
+                row.remove();
+                updateEquilibriumData();
+            });
+            
+            // 添加输入框事件
+            const xInput = row.querySelector('.x-input');
+            const yInput = row.querySelector('.y-input');
+            
+            xInput.addEventListener('change', updateEquilibriumData);
+            yInput.addEventListener('change', updateEquilibriumData);
+            
+            equilibriumDataTable.appendChild(row);
+        }
+
+        // 更新平衡数据
+        function updateEquilibriumData() {
+            console.log('更新平衡数据...');
+            
+            try {
+                const rows = equilibriumDataTable.querySelectorAll('tr');
+                const xValues = [];
+                const yValues = [];
+                
+                rows.forEach(row => {
+                    const xInput = row.querySelector('.x-input');
+                    const yInput = row.querySelector('.y-input');
+                    
+                    if (xInput && yInput && xInput.value && yInput.value) {
+                        const x = parseFloat(xInput.value);
+                        const y = parseFloat(yInput.value);
+                        
+                        if (!isNaN(x) && !isNaN(y) && x >= 0 && x <= 1 && y >= 0 && y <= 1) {
+                            xValues.push(x);
+                            yValues.push(y);
+                        }
+                    }
+                });
+                
+                // 按x值排序
+                const sortedData = xValues.map((x, i) => ({ x, y: yValues[i] }))
+                                         .sort((a, b) => a.x - b.x);
+                
+                equilibriumData = {
+                    x: sortedData.map(item => item.x),
+                    y: sortedData.map(item => item.y)
+                };
+                
+                console.log('平衡数据更新完成，点数:', equilibriumData.x.length);
+                
+            } catch (error) {
+                console.error('更新平衡数据失败:', error);
+            }
+        }
+
+        // 初始化SVG坐标系
+        function initSVG() {
+            const svgRect = svgElement.getBoundingClientRect();
+            width = svgRect.width - margin.left - margin.right;
+            height = svgRect.height - margin.top - margin.bottom;
+            
+            // 清空SVG
+            svgElement.innerHTML = '';
+            
+            // 创建坐标系
+            const svg = svgElement;
+            
+            // 添加坐标轴
+            addCoordinateSystem(svg);
+        }
+
+        // 添加坐标系
+        function addCoordinateSystem(svg) {
+            // 创建缩放函数
+            xScale = (x) => margin.left + x * width;
+            yScale = (y) => margin.top + (1 - y) * height; // 注意：SVG的y轴是向下的
+            
+            // 添加网格线
+            for (let i = 0; i <= 1; i += 0.1) {
+                // 垂直网格线
+                const lineV = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                lineV.setAttribute('class', 'grid-line');
+                lineV.setAttribute('x1', xScale(i));
+                lineV.setAttribute('y1', yScale(0));
+                lineV.setAttribute('x2', xScale(i));
+                lineV.setAttribute('y2', yScale(1));
+                svg.appendChild(lineV);
+                
+                // 水平网格线
+                const lineH = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                lineH.setAttribute('class', 'grid-line');
+                lineH.setAttribute('x1', xScale(0));
+                lineH.setAttribute('y1', yScale(i));
+                lineH.setAttribute('x2', xScale(1));
+                lineH.setAttribute('y2', yScale(i));
+                svg.appendChild(lineH);
+                
+                // x轴刻度标签
+                if (i > 0 && i < 1) {
+                    const xText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    xText.setAttribute('class', 'axis-text');
+                    xText.setAttribute('x', xScale(i));
+                    xText.setAttribute('y', yScale(0) + 20);
+                    xText.setAttribute('text-anchor', 'middle');
+                    xText.textContent = i.toFixed(1);
+                    svg.appendChild(xText);
+                }
+                
+                // y轴刻度标签
+                if (i > 0 && i < 1) {
+                    const yText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    yText.setAttribute('class', 'axis-text');
+                    yText.setAttribute('x', xScale(0) - 10);
+                    yText.setAttribute('y', yScale(i) + 4);
+                    yText.setAttribute('text-anchor', 'end');
+                    yText.textContent = i.toFixed(1);
+                    svg.appendChild(yText);
+                }
+            }
+            
+            // 添加坐标轴
+            // x轴
+            const xAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            xAxis.setAttribute('class', 'axis-line');
+            xAxis.setAttribute('x1', xScale(0));
+            xAxis.setAttribute('y1', yScale(0));
+            xAxis.setAttribute('x2', xScale(1));
+            xAxis.setAttribute('y2', yScale(0));
+            svg.appendChild(xAxis);
+            
+            // y轴
+            const yAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            yAxis.setAttribute('class', 'axis-line');
+            yAxis.setAttribute('x1', xScale(0));
+            yAxis.setAttribute('y1', yScale(1));
+            yAxis.setAttribute('x2', xScale(0));
+            yAxis.setAttribute('y2', yScale(0));
+            svg.appendChild(yAxis);
+            
+            // 坐标轴标题
+            const xTitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            xTitle.setAttribute('class', 'axis-title');
+            xTitle.setAttribute('x', xScale(0.5));
+            xTitle.setAttribute('y', yScale(0) + 40);
+            xTitle.setAttribute('text-anchor', 'middle');
+            xTitle.textContent = '液相中轻组分摩尔分数 (x)';
+            svg.appendChild(xTitle);
+            
+            const yTitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            yTitle.setAttribute('class', 'axis-title');
+            yTitle.setAttribute('x', xScale(0) - 40);
+            yTitle.setAttribute('y', yScale(0.5));
+            yTitle.setAttribute('text-anchor', 'middle');
+            yTitle.setAttribute('transform', `rotate(-90, ${xScale(0) - 40}, ${yScale(0.5)})`);
+            yTitle.textContent = '气相中轻组分摩尔分数 (y)';
+            svg.appendChild(yTitle);
+        }
+
+        // 添加对角线
+        function addDiagonalLine(svg) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('class', 'diagonal-line');
+            line.setAttribute('x1', xScale(0));
+            line.setAttribute('y1', yScale(0));
+            line.setAttribute('x2', xScale(1));
+            line.setAttribute('y2', yScale(1));
+            svg.appendChild(line);
+        }
+
+        // 添加平衡线
+        function addEquilibriumLine(svg, x_eq, y_eq) {
+            // 使用平滑插值
+            const x_smooth = generateSmoothX(x_eq, 200);
+            const y_smooth = interpolateY(x_eq, y_eq, x_smooth);
+            
+            // 绘制平衡线
+            let pathData = `M ${xScale(x_smooth[0])} ${yScale(y_smooth[0])}`;
+            for (let i = 1; i < x_smooth.length; i++) {
+                pathData += ` L ${xScale(x_smooth[i])} ${yScale(y_smooth[i])}`;
+            }
+            
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('class', 'equilibrium-line');
+            path.setAttribute('d', pathData);
+            svg.appendChild(path);
+            
+            // 添加平衡数据点
+            for (let i = 0; i < x_eq.length; i++) {
+                const point = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                point.setAttribute('class', 'equilibrium-point');
+                point.setAttribute('cx', xScale(x_eq[i]));
+                point.setAttribute('cy', yScale(y_eq[i]));
+                point.setAttribute('data-x', x_eq[i].toFixed(3));
+                point.setAttribute('data-y', y_eq[i].toFixed(3));
+                point.addEventListener('mouseover', showTooltip);
+                point.addEventListener('mouseout', hideTooltip);
+                svg.appendChild(point);
+            }
+        }
+
+        // 添加操作线
+        function addOperatingLines(svg, result) {
+            if (result.isTotalReflux) {
+                // 全回流时，操作线为对角线
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('class', 'rectifying-line');
+                line.setAttribute('x1', xScale(0));
+                line.setAttribute('y1', yScale(0));
+                line.setAttribute('x2', xScale(1));
+                line.setAttribute('y2', yScale(1));
+                line.style.strokeDasharray = '5,5';
+                svg.appendChild(line);
+            } else {
+                // 精馏段操作线
+                addLine(svg, result.rectifyingLine, 'rectifying-line', '精馏段操作线');
+                
+                // 提馏段操作线
+                addLine(svg, result.strippingLine, 'stripping-line', '提馏段操作线');
+                
+                // q线
+                if (result.qLine && result.qLine.length >= 2) {
+                    const qLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    qLine.setAttribute('class', 'q-line');
+                    qLine.setAttribute('x1', xScale(result.qLine[0].x));
+                    qLine.setAttribute('y1', yScale(result.qLine[0].y));
+                    qLine.setAttribute('x2', xScale(result.qLine[1].x));
+                    qLine.setAttribute('y2', yScale(result.qLine[1].y));
+                    svg.appendChild(qLine);
+                }
+                
+                // 进料点
+                const feedPoint = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                feedPoint.setAttribute('class', 'feed-point');
+                feedPoint.setAttribute('cx', xScale(result.xF));
+                feedPoint.setAttribute('cy', yScale(result.xF));
+                feedPoint.setAttribute('data-x', result.xF.toFixed(3));
+                feedPoint.setAttribute('data-y', result.xF.toFixed(3));
+                feedPoint.setAttribute('data-label', '进料点');
+                feedPoint.addEventListener('mouseover', showTooltip);
+                feedPoint.addEventListener('mouseout', hideTooltip);
+                svg.appendChild(feedPoint);
+            }
+        }
+
+        // 添加通用线段
+        function addLine(svg, points, className, label = '') {
+            if (points.length < 2) return;
+            
+            let pathData = `M ${xScale(points[0].x)} ${yScale(points[0].y)}`;
+            for (let i = 1; i < points.length; i++) {
+                pathData += ` L ${xScale(points[i].x)} ${yScale(points[i].y)}`;
+            }
+            
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('class', className);
+            path.setAttribute('d', pathData);
+            if (label) {
+                path.setAttribute('data-label', label);
+            }
+            svg.appendChild(path);
+        }
+
+        // 添加理论板阶梯
+        function addStageSteps(svg, steps) {
+            for (let i = 0; i < steps.length - 1; i++) {
+                const step = steps[i];
+                const nextStep = steps[i + 1];
+                
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('class', 'stage-line');
+                line.setAttribute('x1', xScale(step.x));
+                line.setAttribute('y1', yScale(step.y));
+                line.setAttribute('x2', xScale(nextStep.x));
+                line.setAttribute('y2', yScale(nextStep.y));
+                line.setAttribute('data-label', step.label || '');
+                svg.appendChild(line);
+            }
+            
+            // 添加塔顶和塔釜标记点
+            const topPoint = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            topPoint.setAttribute('class', 'top-point');
+            topPoint.setAttribute('cx', xScale(steps[0].x));
+            topPoint.setAttribute('cy', yScale(steps[0].y));
+            topPoint.setAttribute('data-x', steps[0].x.toFixed(3));
+            topPoint.setAttribute('data-y', steps[0].y.toFixed(3));
+            topPoint.setAttribute('data-label', steps[0].label);
+            topPoint.addEventListener('mouseover', showTooltip);
+            topPoint.addEventListener('mouseout', hideTooltip);
+            svg.appendChild(topPoint);
+            
+            // 找到塔釜点（最后一步）
+            const bottomStep = steps[steps.length - 1];
+            const bottomPoint = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            bottomPoint.setAttribute('class', 'bottom-point');
+            bottomPoint.setAttribute('cx', xScale(bottomStep.x));
+            bottomPoint.setAttribute('cy', yScale(bottomStep.y));
+            bottomPoint.setAttribute('data-x', bottomStep.x.toFixed(3));
+            bottomPoint.setAttribute('data-y', bottomStep.y.toFixed(3));
+            bottomPoint.setAttribute('data-label', bottomStep.label);
+            bottomPoint.addEventListener('mouseover', showTooltip);
+            bottomPoint.addEventListener('mouseout', hideTooltip);
+            svg.appendChild(bottomPoint);
+        }
+
+        // 添加图标题
+        function addChartTitle(svg, result) {
+            const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            title.setAttribute('class', 'axis-title');
+            title.setAttribute('x', xScale(0.5));
+            title.setAttribute('y', margin.top - 20);
+            title.setAttribute('text-anchor', 'middle');
+            title.textContent = `McCabe-Thiele 图 - ${result.isTotalReflux ? '全回流' : '部分回流'} - 理论板数: ${result.theoreticalStages.toFixed(1)}`;
+            svg.appendChild(title);
+        }
+
+        // 工具提示显示
+        function showTooltip(event) {
+            const element = event.target;
+            const x = element.getAttribute('data-x');
+            const y = element.getAttribute('data-y');
+            const label = element.getAttribute('data-label') || '平衡点';
+            
+            tooltip.textContent = `${label}: x=${x}, y=${y}`;
+            tooltip.style.left = (event.clientX + 10) + 'px';
+            tooltip.style.top = (event.clientY - 30) + 'px';
+            tooltip.style.display = 'block';
+        }
+
+        // 工具提示隐藏
+        function hideTooltip() {
+            tooltip.style.display = 'none';
+        }
+
+        // 计算并绘制 McCabe-Thiele 图
+        function calculateAndPlot() {
+            console.log('开始计算和绘制...');
+            
+            // 显示加载状态
+            loadingDiv.classList.remove('hidden');
+            calculateBtn.disabled = true;
+            
+            try {
+                // 更新平衡数据
+                updateEquilibriumData();
+                
+                // 验证平衡数据
+                if (equilibriumData.x.length < 2) {
+                    throw new Error('请至少输入2组平衡数据点');
+                }
+                
+                // 检查平衡数据是否合理
+                for (let i = 0; i < equilibriumData.x.length - 1; i++) {
+                    if (equilibriumData.x[i] >= equilibriumData.x[i + 1]) {
+                        throw new Error('液相组成(x)必须严格递增');
+                    }
+                    if (equilibriumData.y[i] >= equilibriumData.y[i + 1]) {
+                        throw new Error('气相组成(y)必须严格递增');
+                    }
+                    if (equilibriumData.y[i] < equilibriumData.x[i]) {
+                        throw new Error('对于理想溶液，气相组成(y)应大于液相组成(x)');
+                    }
+                }
+                
+                // 获取操作参数
+                const xD = parseFloat(xDInput.value);
+                const xW = parseFloat(xWInput.value);
+                const isTotalReflux = totalRefluxCheckbox.checked;
+                
+                let xF, q, R;
+                if (!isTotalReflux) {
+                    xF = parseFloat(xFInput.value);
+                    q = parseFloat(qInput.value);
+                    R = parseFloat(RInput.value);
+                }
+                
+                console.log('操作参数:', { xD, xW, isTotalReflux });
+                if (!isTotalReflux) {
+                    console.log('部分回流参数:', { xF, q, R });
+                }
+                
+                // 验证输入
+                if (isNaN(xD) || isNaN(xW)) {
+                    throw new Error('请输入塔顶和塔釜组成');
+                }
+                
+                if (!isTotalReflux) {
+                    if (isNaN(xF) || isNaN(q) || isNaN(R)) {
+                        throw new Error('请输入所有必需的参数');
+                    }
+                }
+                
+                if (xD <= 0 || xD >= 1 || xW <= 0 || xW >= 1) {
+                    throw new Error('塔顶和塔釜组成必须在 0 到 1 之间');
+                }
+                
+                if (!isTotalReflux && (xF <= 0 || xF >= 1)) {
+                    throw new Error('进料组成必须在 0 到 1 之间');
+                }
+                
+                if (xD <= xW) {
+                    throw new Error('塔顶组成 (xD) 必须大于塔釜组成 (xW)');
+                }
+                
+                if (!isTotalReflux) {
+                    if (R < 0) {
+                        throw new Error('回流比 (R) 不能为负数');
+                    }
+                    
+                    if (q < 0) {
+                        throw new Error('进料热状态参数 (q) 不能为负数');
+                    }
+                    
+                    // 验证进料组成在塔顶和塔釜之间
+                    if (xF <= xW || xF >= xD) {
+                        throw new Error('进料组成 (xF) 必须在塔釜组成 (xW) 和塔顶组成 (xD) 之间');
+                    }
+                }
+                
+                // 执行计算
+                console.log('开始执行计算...');
+                const result = isTotalReflux ? 
+                    performTotalRefluxCalculation(xD, xW) : 
+                    performCalculation(xD, xW, xF, q, R);
+                
+                console.log('计算结果:', result);
+                
+                // 初始化SVG
+                initSVG();
+                
+                // 绘制图表元素
+                addDiagonalLine(svgElement);
+                addEquilibriumLine(svgElement, result.x_eq, result.y_eq);
+                addOperatingLines(svgElement, result);
+                addStageSteps(svgElement, result.steps);
+                addChartTitle(svgElement, result);
+                
+                // 获取用户输入的实际板数
+                const userActualStages = parseInt(actualStagesInput.value);
+                
+                // 更新计算结果显示
+                theoreticalStagesSpan.textContent = result.theoreticalStages.toFixed(1);
+                rectifyingStagesSpan.textContent = result.rectifyingStages.toFixed(1);
+                strippingStagesSpan.textContent = result.strippingStages.toFixed(1);
+                actualStagesSpan.textContent = userActualStages.toFixed(0);
+                feedStageSpan.textContent = isTotalReflux ? '不适用' : result.feedStage.toFixed(0);
+                operationStatusSpan.textContent = isTotalReflux ? '全回流' : '部分回流';
+                
+                console.log('计算和绘制完成');
+                
+            } catch (error) {
+                console.error('错误详情:', error);
+                console.error('错误堆栈:', error.stack);
+                
+                // 显示错误信息
+                alert('操作失败: ' + error.message);
+                
+            } finally {
+                // 隐藏加载状态
+                loadingDiv.classList.add('hidden');
+                calculateBtn.disabled = false;
+            }
+        }
+
+        // 执行部分回流计算
+        function performCalculation(xD, xW, xF, q, R) {
+            try {
+                // 准备数据
+                const x_eq = equilibriumData.x;
+                const y_eq = equilibriumData.y;
+                
+                // 生成平滑的平衡线数据
+                const x_smooth = generateSmoothX(x_eq, 200);
+                const y_smooth = interpolateY(x_eq, y_eq, x_smooth);
+                
+                // 计算操作线
+                const { rectifyingLine, strippingLine, qLine } = calculateOperatingLines(xD, xW, xF, q, R, x_smooth);
+                
+                // 计算理论板数
+                const { steps, theoreticalStages, rectifyingStages, strippingStages, feedStage } = 
+                    calculateTheoreticalStages(xD, xW, xF, q, R, x_eq, y_eq, rectifyingLine, strippingLine);
+                
+                return {
+                    x_eq,
+                    y_eq,
+                    x_smooth,
+                    y_smooth,
+                    rectifyingLine,
+                    strippingLine,
+                    qLine,
+                    steps,
+                    theoreticalStages,
+                    rectifyingStages,
+                    strippingStages,
+                    feedStage,
+                    xD,
+                    xW,
+                    xF,
+                    q,
+                    R,
+                    isTotalReflux: false
+                };
+                
+            } catch (error) {
+                console.error('部分回流计算失败:', error);
+                throw error;
+            }
+        }
+
+        // 执行全回流计算
+        function performTotalRefluxCalculation(xD, xW) {
+            try {
+                // 准备数据
+                const x_eq = equilibriumData.x;
+                const y_eq = equilibriumData.y;
+                
+                // 生成平滑的平衡线数据
+                const x_smooth = generateSmoothX(x_eq, 200);
+                const y_smooth = interpolateY(x_eq, y_eq, x_smooth);
+                
+                // 全回流时，操作线为对角线
+                const operatingLine = x_smooth.map(x => ({ x, y: x }));
+                
+                // 计算理论板数
+                const { steps, theoreticalStages } = calculateTotalRefluxStages(xD, xW, x_eq, y_eq);
+                
+                return {
+                    x_eq,
+                    y_eq,
+                    x_smooth,
+                    y_smooth,
+                    operatingLine,
+                    steps,
+                    theoreticalStages,
+                    rectifyingStages: theoreticalStages,
+                    strippingStages: 0,
+                    feedStage: 0,
+                    xD,
+                    xW,
+                    isTotalReflux: true
+                };
+                
+            } catch (error) {
+                console.error('全回流计算失败:', error);
+                throw error;
+            }
+        }
+
+        // 生成平滑的 x 值数组
+        function generateSmoothX(x_eq, numPoints) {
+            const minX = Math.min(...x_eq);
+            const maxX = Math.max(...x_eq);
+            const step = (maxX - minX) / (numPoints - 1);
+            
+            const x_smooth = [];
+            for (let i = 0; i < numPoints; i++) {
+                x_smooth.push(minX + i * step);
+            }
+            
+            return x_smooth;
+        }
+
+        // 使用线性插值计算 y 值
+        function interpolateY(x_eq, y_eq, x_smooth) {
+            const y_smooth = [];
+            
+            for (const x of x_smooth) {
+                // 检查边界情况
+                if (x <= x_eq[0]) {
+                    y_smooth.push(y_eq[0]);
+                    continue;
+                }
+                
+                if (x >= x_eq[x_eq.length - 1]) {
+                    y_smooth.push(y_eq[y_eq.length - 1]);
+                    continue;
+                }
+                
+                // 找到 x 所在的区间
+                let i = 0;
+                while (x > x_eq[i + 1]) {
+                    i++;
+                }
+                
+                // 线性插值
+                const x1 = x_eq[i];
+                const x2 = x_eq[i + 1];
+                const y1 = y_eq[i];
+                const y2 = y_eq[i + 1];
+                
+                const y = y1 + (y2 - y1) * (x - x1) / (x2 - x1);
+                y_smooth.push(y);
+            }
+            
+            return y_smooth;
+        }
+
+        // 计算操作线
+        function calculateOperatingLines(xD, xW, xF, q, R, x_smooth) {
+            try {
+                // 精馏段操作线
+                const rectifyingLine = x_smooth.map(x => {
+                    const y = (R / (R + 1)) * x + (xD / (R + 1));
+                    return { x, y };
+                });
+                
+                // q线
+                const qLine = [];
+                if (q !== 1) {
+                    // q线方程: y = (q / (q - 1)) * x - (xF / (q - 1))
+                    const qLineX1 = Math.max(0, xF - 0.2);
+                    const qLineX2 = Math.min(1, xF + 0.2);
+                    const qLineY1 = (q / (q - 1)) * qLineX1 - (xF / (q - 1));
+                    const qLineY2 = (q / (q - 1)) * qLineX2 - (xF / (q - 1));
+                    qLine.push({ x: qLineX1, y: qLineY1 });
+                    qLine.push({ x: qLineX2, y: qLineY2 });
+                } else {
+                    // q=1 时，q线为垂直线
+                    qLine.push({ x: xF, y: Math.max(0, xF - 0.2) });
+                    qLine.push({ x: xF, y: Math.min(1, xF + 0.2) });
+                }
+                
+                // 找到精馏段操作线和q线的交点
+                let intersectionPoint;
+                if (q !== 1) {
+                    // 解联立方程找到交点
+                    const x_intersect = (xD/(R+1) + xF/(q-1)) / (q/(q-1) - R/(R+1));
+                    const y_intersect = (R/(R+1)) * x_intersect + (xD/(R+1));
+                    intersectionPoint = { x: x_intersect, y: y_intersect };
+                } else {
+                    // q=1 时，交点在x=xF处
+                    const y_intersect = (R/(R+1)) * xF + (xD/(R+1));
+                    intersectionPoint = { x: xF, y: y_intersect };
+                }
+                
+                // 提馏段操作线 - 通过交点和(xW, xW)点
+                const strippingLine = x_smooth.map(x => {
+                    const slope = (intersectionPoint.y - xW) / (intersectionPoint.x - xW);
+                    const y = slope * (x - xW) + xW;
+                    return { x, y };
+                });
+                
+                return { rectifyingLine, strippingLine, qLine, intersectionPoint };
+                
+            } catch (error) {
+                console.error('计算操作线失败:', error);
+                throw error;
+            }
+        }
+
+        // 计算理论板数 - 使用标准的 McCabe-Thiele 法
+        function calculateTheoreticalStages(xD, xW, xF, q, R, x_eq, y_eq, rectifyingLine, strippingLine) {
+            try {
+                const steps = [];
+                let currentX, currentY;
+                let stageCount = 0;
+                let rectifyingStages = 0;
+                let strippingStages = 0;
+                let feedStage = 0;
+                let useRectifyingLine = true;
+                
+                // 从塔顶开始 (y1 = xD)
+                currentY = xD;
+                steps.push({ x: xD, y: currentY, label: '塔顶' });
+                
+                // 逐板计算
+                while (true) {
+                    // 从气相组成 y 计算液相组成 x (使用平衡线)
+                    currentX = getXFromY(currentY, x_eq, y_eq);
+                    steps.push({ x: currentX, y: currentY, label: `板 ${stageCount + 1}` });
+                    
+                    // 检查是否到达塔釜组成
+                    if (currentX <= xW) {
+                        steps.push({ x: currentX, y: xW, label: '塔釜' });
+                        stageCount++;
+                        strippingStages++;
+                        break;
+                    }
+                    
+                    // 检查是否需要切换到提馏段操作线
+                    if (useRectifyingLine && currentX <= xF) {
+                        useRectifyingLine = false;
+                        feedStage = stageCount + 1;
+                    }
+                    
+                    // 从液相组成 x 计算下一块板的气相组成 y (使用操作线)
+                    if (useRectifyingLine) {
+                        currentY = getYFromX(currentX, rectifyingLine);
+                        rectifyingStages++;
+                    } else {
+                        currentY = getYFromX(currentX, strippingLine);
+                        strippingStages++;
+                    }
+                    
+                    steps.push({ x: currentX, y: currentY, label: '' });
+                    stageCount++;
+                }
+                
+                const theoreticalStages = stageCount;
+                
+                return {
+                    steps,
+                    theoreticalStages,
+                    rectifyingStages,
+                    strippingStages,
+                    feedStage
+                };
+                
+            } catch (error) {
+                console.error('计算理论板数失败:', error);
+                throw error;
+            }
+        }
+
+        // 计算全回流下的理论板数
+        function calculateTotalRefluxStages(xD, xW, x_eq, y_eq) {
+            try {
+                const steps = [];
+                let currentX, currentY;
+                let stageCount = 0;
+                
+                // 从塔顶开始 (y1 = xD)
+                currentY = xD;
+                steps.push({ x: xD, y: currentY, label: '塔顶' });
+                
+                // 逐板计算
+                while (true) {
+                    // 从气相组成 y 计算液相组成 x (使用平衡线)
+                    currentX = getXFromY(currentY, x_eq, y_eq);
+                    steps.push({ x: currentX, y: currentY, label: `板 ${stageCount + 1}` });
+                    
+                    // 检查是否到达塔釜组成
+                    if (currentX <= xW) {
+                        steps.push({ x: currentX, y: xW, label: '塔釜' });
+                        stageCount++;
+                        break;
+                    }
+                    
+                    // 全回流时，操作线为对角线，所以 y = x
+                    currentY = currentX;
+                    steps.push({ x: currentX, y: currentY, label: '' });
+                    stageCount++;
+                }
+                
+                const theoreticalStages = stageCount;
+                
+                return {
+                    steps,
+                    theoreticalStages
+                };
+                
+            } catch (error) {
+                console.error('计算全回流理论板数失败:', error);
+                throw error;
+            }
+        }
+
+        // 从气相组成 y 获取液相组成 x (使用平衡线)
+        function getXFromY(y, x_eq, y_eq) {
+            // 检查边界情况
+            if (y <= y_eq[0]) {
+                return x_eq[0];
+            }
+            
+            if (y >= y_eq[y_eq.length - 1]) {
+                return x_eq[x_eq.length - 1];
+            }
+            
+            // 找到 y 所在的区间
+            let i = 0;
+            while (y > y_eq[i + 1]) {
+                i++;
+            }
+            
+            // 线性插值
+            const y1 = y_eq[i];
+            const y2 = y_eq[i + 1];
+            const x1 = x_eq[i];
+            const x2 = x_eq[i + 1];
+            
+            const x = x1 + (x2 - x1) * (y - y1) / (y2 - y1);
+            return x;
+        }
+
+        // 从液相组成 x 获取气相组成 y (使用操作线)
+        function getYFromX(x, operatingLine) {
+            // 找到 x 所在的区间
+            let i = 0;
+            while (i < operatingLine.length - 2 && x > operatingLine[i + 1].x) {
+                i++;
+            }
+            
+            // 线性插值
+            const x1 = operatingLine[i].x;
+            const x2 = operatingLine[i + 1].x;
+            const y1 = operatingLine[i].y;
+            const y2 = operatingLine[i + 1].y;
+            
+            const y = y1 + (y2 - y1) * (x - x1) / (x2 - x1);
+            return y;
+        }
+
+        // 导出SVG
+        function downloadSVG() {
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const blob = new Blob([svgData], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'mccabe-thiele-diagram.svg';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            // 初始化SVG
+            initSVG();
+            // 加载示例数据
+            loadExampleData();
+            console.log('页面初始化完成');
+        });
+
+        // 窗口大小变化时重新计算SVG尺寸
+        window.addEventListener('resize', function() {
+            if (svgElement.innerHTML) {
+                initSVG();
+                // 如果已有数据，重新绘制
+                if (equilibriumData.x.length > 0) {
+                    calculateBtn.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
